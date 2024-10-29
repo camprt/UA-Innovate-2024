@@ -1,0 +1,81 @@
+Psuedocode for Finite State Machine:
+
+globals:
+    boolean System_enable,
+    machine_speed
+
+
+//on each running camera process 
+startup:    enter State 1: safe
+            partisMoving = System_enable
+while (partIsMoving) {
+
+    case State 1: safe
+        if (red action) {
+            state = State 3: IMMANENT DANGER
+        }
+        else if (yellow action) {
+            state = State 2: Possible Danger
+            startNewYellowActionTimer() //one for each incident
+        }
+
+    case State 2: Possible Danger (yellow)
+        if (redAction) {
+            state = State 3
+        }
+        else { 
+            activateWarning()   //customaizable to warehouse needs, our suggestion: blinking light
+            yellowCount++
+            if (yellowCount > maxWarnings) { //warnings may be modified depending on the "danger level" of the part being monitored
+                take disciplinary action
+            }
+            //after a certain amount of time, stop worrying about that action
+            if (yellowTimer[i].expires)
+                yellowCount--
+            if (return to normal conditions)
+                state = State 1
+        }
+
+    
+    case State 3: IMMANENT DANGER (red)
+        part.STOP()
+        System_enable = 0
+
+}
+
+Interrupt: change notification on System_enable {
+    
+    if (System_enable == 0) {
+        partIsMoving = startStopSequence()
+        //may be modified depending on the frequency and seriousness of machine stops
+        //in the individual warehouse/plant
+        //options include: cascading warning signals to nearby parts to keep machine in full
+        //operations for as long as possible, or send a signal to all employees to back off
+        //and wait for instructions from supervisor
+    }
+
+    //system is turning back on
+    else if (System_enable = 1) {
+        partIsMoving = System_enable
+    }
+
+}
+
+
+--------------
+CLARIFICATIONS
+--------------
+redAction = any event where a human apporoaches a high risk area at a speed higher than
+            is appropriate based on the part's operating speed and classification (i.e.,
+            in what conditions is it dangerous?)
+
+yellowAction = any event that could lead to injury if continued. Too many infractions in
+                in a certain amount of time could lead to a direct change of state to red,
+                a disciplinary infraction on the employee operating the machine
+
+Note on stopping protocol: when the machine stops, it is up to the supervisor/warehouse manager to decide 
+whether all other employees should stop their own work immediately, or of those in unaffected segments of the 
+machine should carry on as usual. They may have a standard protocol that they expect all employees to follow, 
+or evaluate each stopping event on a case by case basis. However, it is the supervisor's responsibility to 
+communicate these expectations with their employees explictly, and all employees must follow said expecations 
+to ensure that everyone is remaining safe around the machinery, including during a system shutdown
